@@ -1,0 +1,109 @@
+import React from 'react'
+import axios from 'axios';
+import { FaUserCircle } from 'react-icons/fa';
+function Bot() {
+  const [messages, setMessages] = React.useState([]);
+  const [input, setInput] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
+  const messageEndRef = React.useRef(null);
+  React.useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+  const handleSendMessage = async () => {
+    if (input.trim() === "") return;
+    setIsLoading(true);
+    try {
+      const res = await axios.post("http://localhost:4002/bot/v1/message", { text: input });
+      if (res.status === 200) {
+        setMessages([...messages, { text: input, sender: "user" }, { text: res.data.bot, sender: "bot" }]);
+        setInput("");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    setInput("");
+    setIsLoading(false);
+  }
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSendMessage();
+    }
+  }
+
+  return (
+    <div>
+      <div className='flex flex-col min-h-screen bg-[#0d0d0d] text-white'>
+        {/* Navbar & Header */}
+        <header className="fixed top-0 left-0 w-full border-b border-gray-800 bg-[#0d0d0d] z-10">
+          <div className=" container mx-auto flex justify-between items-center px-6 py-4">
+            <h1 className="text-lg font-bold">ChatSphere</h1>
+            {/* <FaUserCircle size={30} className="cursor-pointer" /> */}
+          </div>
+        </header>
+
+        {/* Chat area */}
+        <main className="flex-1 overflow-y-auto pt-20 pb-24 flex items-center justify-center">
+          <div className="w-full max-w-4xl mx-auto px-4 flex flex-col space-y-3">
+            {messages.length === 0 ? (
+              <div className="flex flex-col items-center">
+                <p className="text-gray-400 text-lg -mb-10">Welcome to</p>
+                <img
+                  src="/chatSp.png"
+                  alt="ChatSphere Logo"
+                  className="w-80 md:w-96 mb-4"
+                />
+
+              </div>
+            ) : (
+              <>
+                {messages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`px-4 py-2 rounded-xl max-w-[75%] ${msg.sender === "user"
+                      ? "bg-blue-600 text-white self-end"
+                      : "bg-gray-800 text-gray-100 self-start"
+                      }`}
+                  >
+                    {msg.text}
+                  </div>
+                ))}
+
+                {isLoading && (
+                  <div className="bg-gray-700 text-gray-300 px-4 py-2 rounded-xl max-w-[60%] self-start">
+                    Is typing...
+                  </div>
+                )}
+                <div ref={messageEndRef} />
+              </>
+            )}
+          </div>
+        </main>
+
+        {/* Input & Footer */}
+        <footer className="fixed bottom-0 left-0 w-full border-t border-gray-800 bg-[#0d0d0d] z-10">
+          <div className="max-w-4xl mx-auto flex justify-center px-4 py-3">
+            <div className="w-full flex bg-gray-900 rounded-full px-4 py-2 shadow-lg">
+              <input
+                type="text"
+                className="flex-1 bg-transparent outline-none text-white placeholder-gray-400 px-2"
+                placeholder="Ask anything..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+              />
+              <button
+                onClick={handleSendMessage}
+                className="bg-green-600 hover:bg-green-700 px-4 py-1 rounded-full text-white font-medium transition-colors"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  )
+}
+
+export default Bot
