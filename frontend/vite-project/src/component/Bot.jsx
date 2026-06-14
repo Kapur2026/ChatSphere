@@ -13,7 +13,7 @@ function Bot() {
     if (input.trim() === "") return;
     setIsLoading(true);
     try {
-      const res = await axios.post("http://localhost:4002/bot/v1/message", { text: input });
+      const res = await axios.post("https://chatsphere-774s.onrender.com/bot/v1/message", { text: input });
       if (res.status === 200) {
         setMessages([...messages, { text: input, sender: "user" }, { text: res.data.bot, sender: "bot" }]);
         setInput("");
