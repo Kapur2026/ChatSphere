@@ -83,9 +83,6 @@ npm run dev
 * Frontend: Vercel
 * Backend: Render
 
-## 📸 Screenshots
-
-Add project screenshots here.
 
 ## 👨‍💻 Author
 
